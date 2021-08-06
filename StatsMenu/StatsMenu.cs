@@ -9,7 +9,7 @@ using BepInEx.Configuration;
 
 namespace StatsMenu
 {
-    [BepInPlugin("dev.aresiel.wol.statsmenu", "Stats Menu", "3.0.0.0")]
+    [BepInPlugin("dev.aresiel.wol.statsmenu", "Stats Menu", "4.0.0.0")]
     public class StatsMenu : BaseUnityPlugin
     {
         public static bool toggleBool = true;
@@ -31,7 +31,15 @@ namespace StatsMenu
             var inventoryMenu = Traverse.Create(hud).Field("inventoryMenu").GetValue() as InventoryMenu;
             var equipMenu = inventoryMenu.equipMenu;
             var currentlySelectedIndex = Traverse.Create(equipMenu).Field("navigationIndex").GetValue<int>();
-            Player.SkillState currentSelectedSkill = player.assignedSkills[currentlySelectedIndex] ?? fallback;
+            Player.SkillState currentSelectedSkill;
+            try
+            {
+                currentSelectedSkill = player.assignedSkills[currentlySelectedIndex] ?? fallback;
+            }
+            catch (IndexOutOfRangeException)
+            {
+                currentSelectedSkill = fallback;
+            }
             return currentSelectedSkill;
         }
 
