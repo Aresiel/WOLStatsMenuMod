@@ -5,16 +5,20 @@ using BepInEx;
 using HarmonyLib;
 using UnityEngine;
 using UnityEngine.UI;
+using BepInEx.Configuration;
 
 namespace StatsMenu
 {
-    [BepInPlugin("dev.aresiel.wol.statsmenu", "Stats Menu", "1.0.0.0")]
+    [BepInPlugin("dev.aresiel.wol.statsmenu", "Stats Menu", "3.0.0.0")]
     public class StatsMenu : BaseUnityPlugin
     {
-        
+        public static bool toggleBool = true;
+        public static ConfigEntry<string> toggleKey;
+
         void Awake()
         {
             Harmony.CreateAndPatchAll(typeof(StatsMenu));
+            toggleKey = Config.Bind("Keybindings", "ToggleMenu", "", "The key used to toggle the menu while the inventory is closed. Name of the key, as used by https://docs.unity3d.com/ScriptReference/Input.GetKeyDown.html");
         }
 
         public static Player.SkillState currentlySelected(Player player, Player.SkillState fallback)
@@ -42,6 +46,10 @@ namespace StatsMenu
             StatData baseCurrentSkillStats = StatManager.GetStatData("Skills", "Player", selectedSkill);
             StatData signatureSkillStats = StatManager.GetStatData("Skills", "Player" + playerDigit.ToString(), signatureSkill);
             StatData baseSignatureSkillStats = StatManager.GetStatData("Skills", "Player", signatureSkill);
+
+            output.AppendLine("[Damage]");
+            float damageRatio = currentSkillStats.ApplyVarStatMod<float>("damage", 1000)/1000;
+            output.AppendLine("<color=#606060>" + (currentSkillStats.GetValue<int>("damage") == 0 ? "None" : currentSkillStats.GetValue<int>("damage") + " (" + Percentify(damageRatio) + ")") + "</color>");
 
             output.AppendLine("[Crit Heal CHN]");
             output.AppendLine("<color=#606060>" + Percentify(health.critHealModStat.CurrentValue) + "</color>");
@@ -112,6 +120,11 @@ namespace StatsMenu
             {
                 Player player = Traverse.Create(hudTrans.Find("CooldownUI").GetComponent<CooldownUI>()).Field("player").GetValue() as Player;
                 statsMenu.Find("Content").GetComponent<Text>().text = StatsMenu.FetchStatsMessage(player);
+            }
+            if (StatsMenu.toggleKey.Value != "" && Input.GetKeyDown(StatsMenu.toggleKey.Value))
+            {
+                statsMenu.gameObject.SetActive(StatsMenu.toggleBool);
+                toggleBool = !toggleBool;
             }
         }
 
@@ -202,10 +215,12 @@ namespace StatsMenu
             {
                 statsMenuTransform.Find("Content").GetComponent<Text>().text = StatsMenu.FetchStatsMessage(player);
                 statsMenuTransform.gameObject.SetActive(true);
+                toggleBool = false;
 
             } else
             {
                 statsMenuTransform.gameObject.SetActive(false);
+                toggleBool = true;
             }
         }
     }
