@@ -1,6 +1,6 @@
 Wizard of Legends StatsMenu Mod
 ===
-A mod that adds a menu for your stats to Wizard of Legends
+A mod that adds a menu for your stats to Wizard of Legends. The menu opens by default alongside your inventory.
 
 ## Configuring
 You can configure a keybind to open the menu independently from the inventory. Do this via the config file located at `GAME_DIR/BepInEx/config/dev.aresiel.wol.statsmenu.cfg`, you need to have ran the game at least once with the mod for this file to exist. The `ToggleMenu` value needs to be a key recognized by [`UnityEngine.Input.GetKeyDown`](https://docs.unity3d.com/ScriptReference/Input.GetKeyDown.html).
